@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+docker_compose="docker-compose -f docker-compose.yml"
+test_cmd="mix ecto.reset && \
+          mix test"
+
+function cleanup {
+  if [ $? -ne 0 ]; then
+    $docker_compose logs app
+  fi
+
+  $docker_compose down --volume --remove-orphans # Remove any lingering containers or volumes
+}
+
+trap cleanup ERR EXIT
+
+wait_for_database() {
+  local STARTTIME=$(date +%s)
+  local COUNTER=0
+  local TIMEOUT=30
+  local DATABASE=$1
+  while true; do
+    if (( $SECONDS > $TIMEOUT ))
+    then
+      echo "Timeout exceeded (${TIMEOUT}s)" && exit 1
+    fi
+    echo "[${SECONDS}s] Waiting for ${1} to be ready..."
+
+    if [ $DATABASE = "postgres" ]; then
+      $docker_compose exec -T postgres psql postgresql://admin:admin@postgres/template1 -c select 1 > /dev/null 2>&1 \
+        && echo "Postgres ready!" \
+        && break
+    else
+      echo "Unknown Database!" && break
+    fi
+  done
+}
+
+COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 $docker_compose build app
+
+# Launch dependency containers first
+$docker_compose up -d postgres
+wait_for_database 'postgres'
+
+# Execute command argument against app container
+$docker_compose run -T app bash -c "$test_cmd"
