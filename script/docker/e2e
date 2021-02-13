@@ -1,0 +1,5 @@
+#!/bin/bash -e
+
+MIX_ENV=${MIX_ENV:-"dev"}
+
+mix test --only e2e

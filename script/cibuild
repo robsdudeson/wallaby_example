@@ -16,6 +16,9 @@ function cleanup {
 
 trap cleanup ERR EXIT
 
+# build our images
+COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 $docker_compose build app e2e
+
 wait_for_database() {
   local STARTTIME=$(date +%s)
   local COUNTER=0
@@ -38,11 +41,11 @@ wait_for_database() {
   done
 }
 
-COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 $docker_compose build app
-
 # Launch dependency containers first
 $docker_compose up -d postgres
 wait_for_database 'postgres'
 
 # Execute command argument against app container
 $docker_compose run -T app bash -c "$test_cmd"
+
+$docker_compose run -T e2e bash -c "mix test --only e2e"

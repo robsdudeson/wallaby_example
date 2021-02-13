@@ -1,7 +1,16 @@
 version: "3.9"
 services: 
   app: 
-    build: .
+    build:
+      context: .
+      target: test
+    links:
+    - postgres
+
+  e2e:
+    build:
+      context: .
+      target: e2e
     links:
     - postgres
 

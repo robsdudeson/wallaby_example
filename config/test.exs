@@ -13,7 +13,11 @@ config :wallaby_example, WallabyExample.Repo,
 # you can enable the server option below.
 config :wallaby_example, WallabyExampleWeb.Endpoint,
   http: [port: 4002],
-  server: false
+  server: true
+
+config :wallaby_example, :sql_sandbox, true
 
 # Print only warnings and errors during test
 config :logger, level: :warn
+
+config :wallaby, driver: Wallaby.Chrome
