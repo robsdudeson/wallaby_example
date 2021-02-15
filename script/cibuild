@@ -2,6 +2,8 @@
 
 set -euo pipefail
 
+MIX_ENV=${MIX_ENV:-test}
+
 docker_compose="docker-compose -f docker-compose.yml"
 test_cmd="mix ecto.reset && \
           mix test"
@@ -21,9 +23,10 @@ COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 $docker_compose build app e2e
 
 wait_for_database() {
   local STARTTIME=$(date +%s)
-  local COUNTER=0
+  local SECONDS=0
   local TIMEOUT=30
   local DATABASE=$1
+
   while true; do
     if (( $SECONDS > $TIMEOUT ))
     then
@@ -38,6 +41,7 @@ wait_for_database() {
     else
       echo "Unknown Database!" && break
     fi
+    SECONDS=SECONDS+1
   done
 }
 
