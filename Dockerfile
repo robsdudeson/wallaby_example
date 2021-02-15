@@ -5,7 +5,7 @@ RUN mix local.rebar --force
 
 ADD . $APP_HOME
 
-RUN mix deps.get
+RUN mix do deps.get, deps.compile
 RUN mix assets.compile
 RUN mix compile --warnings-as-errors
 
