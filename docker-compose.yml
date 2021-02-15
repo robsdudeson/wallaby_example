@@ -3,9 +3,11 @@ services:
   app: 
     build:
       context: .
-      target: test
+      target: app
     links:
     - postgres
+    environment:
+      MIX_ENV: '${MIX_ENV:-dev}'
 
   e2e:
     build:
@@ -13,10 +15,12 @@ services:
       target: e2e
     links:
     - postgres
+    environment:
+      MIX_ENV: '${MIX_ENV:-test}'
 
   postgres:
     image: postgres:13
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
-      POSTGRES_DB: wallaby_example_dev
+      POSTGRES_DB: wallaby_example_${MIX_ENV:-dev}

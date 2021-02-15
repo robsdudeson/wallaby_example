@@ -30,7 +30,7 @@ config :phoenix, :json_library, Jason
 config :wallaby_example, WallabyExample.Repo,
   username: "admin",
   password: "admin",
-  database: "wallaby_example_dev",
+  database: "wallaby_example_#{Mix.env()}",
   hostname: "postgres",
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
